@@ -8,11 +8,17 @@ const Weather = () => {
   const [weather, setWeather] = useState<any>(null);
 
   useEffect(() => {
-    const data = fetch(
-      "http://api.weatherapi.com/v1/current.json?key=59b5be201a1446bead721751242708&q=Jessore"
-    )
-      .then((res) => res.json())
-      .then((data) => setWeather(data));
+    const getWeather = async () => {
+      const data = await fetch(
+        "http://api.weatherapi.com/v1/current.json?key=59b5be201a1446bead721751242708&q=Jessore"
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          setWeather(data);
+        });
+    };
+    getWeather();
   }, []);
 
   return (
