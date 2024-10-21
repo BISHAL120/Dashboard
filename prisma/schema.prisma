@@ -1,0 +1,181 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum NotificationType {
+  ProductCreated
+  ProductUpdated
+  ProductDeleted
+  ProductStockOut
+  CategoryCreated
+  CategoryUpdated
+  CategoryDeleted
+  BlogCreated
+  BlogUpdated
+  BlogDeleted
+  NewOrderPlaced
+  OrderCanceled
+  OrderReturned
+  NewProductReview
+  NewRegistration
+  NewComment
+  Review
+}
+
+type Thumbnail {
+  url      String
+  Filename String
+}
+
+model Blog {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  value     String
+  banner    String
+  author    String
+  viewCount Int       @default(0) // Tracks how many views the blog has
+  likes     Int       @default(0) // Tracks the number of likes
+  comments  Comment[]
+  published Boolean   @default(false)
+  thumb     Thumbnail
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  author    String
+  blog      Blog     @relation(fields: [blogId], references: [id])
+  blogId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  message   String
+  read      Boolean          @default(false)
+  type      NotificationType
+  referId   String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+type ProductImage {
+  imageUrl String
+  filename String
+}
+
+type Colors {
+  color String
+  stock Int
+}
+
+type Varients {
+  size  String
+  color Colors[]
+}
+
+model Product {
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  description    String
+  price          Float
+  discountPrice  Float? // Optional field for discounted price
+  images         ProductImage[] // Array of additional images
+  category       String
+  type           String
+  tags           String[]
+  brand          String? // Optional field for brand name
+  weight         Float? // Optional field for product weight
+  dimensions     String? // Optional field for product dimensions (e.g., "10x5x3 cm")
+  varients       Varients[]
+  material       String? // Optional field for product material (e.g., "Cotton")
+  ratingsAverage Float? // Average rating for the product
+  ratingsCount   Int            @default(0) // Number of ratings for the product
+  reviews        Review[] // Relation to Review model
+  published      Boolean        @default(false) // Product publish status
+  isFeatured     Boolean        @default(false) // Whether the product is featured
+  Order          Order?         @relation(fields: [orderId], references: [id])
+  productType    ProductType    @relation(fields: [productTypeId], references: [id])
+  productTypeId  String         @db.ObjectId
+  orderId        String?        @db.ObjectId
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([category])
+  @@index([brand])
+  @@index([type])
+}
+
+model ProductType {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  type      String
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String   @db.ObjectId
+
+  @@index([productId])
+}
+
+enum Role {
+  USER
+  SELLER
+  ADMIN
+}
+
+// model User {
+//   id          String    @id @default(auto()) @map("_id") @db.ObjectId
+//   name        String
+//   email       String
+//   password    String
+//   role        Role      @default(USER) // Enum for user roles
+//   phoneNumber String? // Optional field for phone number
+//   address     String? // Optional field for home address
+//   city        String? // Optional field for city
+//   state       String? // Optional field for state
+//   country     String? // Optional field for country
+//   postalCode  String? // Optional postal/ZIP code
+//   avatarUrl   String? // Optional profile picture URL
+//   isVerified  Boolean   @default(false) // Email verification status
+//   wishlist    Product[] // Relation to products that users add to their wishlist
+//   orders      Order[] // Relation to user's orders
+//   reviews     Review[] // One-to-many relation for user reviews
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   @@index([email])
+// }
+
+enum OrderStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  products    Product[]
+  totalAmount Float // Total order amount
+  status      OrderStatus @default(PENDING) // Order status (enum)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
