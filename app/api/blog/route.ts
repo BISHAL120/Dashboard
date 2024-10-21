@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const data = await prisma.blog.findMany({ take: 10 });
     await prisma.$disconnect();
     return NextResponse.json(
-      { Data: data, message: "Success" },
+      { Data: data, message: "Successful" },
       { status: 200 }
     );
   } catch (error) {
