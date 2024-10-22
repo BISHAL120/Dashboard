@@ -3,22 +3,21 @@
 import React, { useEffect, useState } from "react";
 import weatherCss from "./weather.module.css";
 import { formatDate } from "date-fns";
+import axios from "axios";
 
 const Weather = () => {
   const [weather, setWeather] = useState<any>(null);
 
   useEffect(() => {
     const getWeather = async () => {
-      const data = await fetch(
-        "https://api.weatherapi.com/v1/current.json?key=59b5be201a1446bead721751242708&q=Jessore",
-        {
-          mode: "no-cors",
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-          setWeather(data);
+      await axios
+        .get("/api/weather")
+        .then((res) => {
+          console.log(res.data);
+          setWeather(res.data.data);
+        })
+        .catch((e) => {
+          console.log(e);
         });
     };
     getWeather();
