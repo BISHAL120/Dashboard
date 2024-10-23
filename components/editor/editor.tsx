@@ -25,21 +25,20 @@ import "react-quill/dist/quill.snow.css";
 import CustomToolbar from "./toolbar";
 
 interface BlogFormProps {
-  initialData: string | null;
-  id: string | null;
-  tittle: string;
+  setDescription: React.Dispatch<React.SetStateAction<string>>;
+  description: string;
   className?: string;
 }
 
+type ChildProps = {};
+
 const Editor: React.FC<BlogFormProps> = ({
-  initialData,
-  id,
-  tittle,
+  setDescription,
+  description,
   className,
 }) => {
-  console.log(initialData, id, tittle);
   const quillRef = useRef(null); // Ref for ReactQuill
-  const [content, setContent] = useState<string>(initialData || "");
+  // const [content, setContent] = useState<string>(initialData || "");
   const [preview, setPreview] = useState(false);
   const [emojiPicker, setEmojiPicker] = useState(false);
 
@@ -106,7 +105,7 @@ const Editor: React.FC<BlogFormProps> = ({
               <div className="max-h-[calc(100vh-200px)] my-10">
                 <div className=" bg-gray-300 p-3 rounded-xl flex justify-between items-center my-6">
                   <p className="text-xl font-semibold">
-                    Preview Of Your Content...
+                    Preview Of Description
                   </p>
                   <Tooltip
                     content={
@@ -124,14 +123,14 @@ const Editor: React.FC<BlogFormProps> = ({
                 <div
                   className="w-full rounded-xl p-5"
                   dangerouslySetInnerHTML={{
-                    __html: content,
+                    __html: description,
                   }}
                 />
               </div>
             ) : (
               <div>
                 <div className="flex justify-between items-center px-2 mt-10">
-                  <p className="text-2xl font-semibold">{tittle}</p>
+                  <p className="text-2xl font-semibold">Description</p>
                   <Tooltip
                     content={
                       <div className="font-semibold ql-flip">Preview</div>
@@ -163,10 +162,10 @@ const Editor: React.FC<BlogFormProps> = ({
                   <CustomToolbar />
 
                   <ReactQuill
-                    value={content}
+                    value={description}
                     ref={quillRef}
                     className={`border rounded-b-lg p-10 bg-white  ${className}`}
-                    onChange={setContent}
+                    onChange={setDescription}
                     placeholder="Add Blog Content here..."
                     modules={{
                       toolbar: {

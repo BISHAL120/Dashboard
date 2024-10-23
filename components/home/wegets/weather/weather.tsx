@@ -13,7 +13,6 @@ const Weather = () => {
       await axios
         .get("/api/weather")
         .then((res) => {
-          console.log(res.data);
           setWeather(res.data.data);
         })
         .catch((e) => {

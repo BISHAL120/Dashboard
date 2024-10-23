@@ -192,7 +192,7 @@ const ProfilePopover = () => {
                   <g
                     fill="none"
                     stroke="currentColor"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                     stroke-width="3.3"
                   >
                     <path

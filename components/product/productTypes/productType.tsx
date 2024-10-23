@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -9,13 +9,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectItem } from "@nextui-org/select";
-import { Input } from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
 import toast from "react-hot-toast";
 import { db } from "@/lib/db";
 import { CreateTypes } from "./action/addProductType";
 
-const ProductTypes = () => {
-  //   const [types, setTypes] = useState("");
+type ChildProps = {
+  setTypes: React.Dispatch<React.SetStateAction<string>>;
+  value?: string;
+};
+
+const ProductTypes: React.FC<ChildProps> = ({ setTypes, value }) => {
+  const [type, setType] = useState(value);
 
   let types = "";
   const addTypes = async () => {
@@ -51,16 +56,25 @@ const ProductTypes = () => {
     }
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setType(e.target.value);
+    setTypes(e.target.value);
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center">
         <Select
+          value={type}
+          onChange={handleChange}
           labelPlacement="inside"
-          label="Add a Tag"
+          label="Add a Type"
           color="primary"
-          className="max-w-xl"
-          // placeholder="Select one"
+          className="max-w-lg lg:max-w-xl"
         >
+          <SelectItem color="secondary" key="Normal">
+            Normal
+          </SelectItem>
           <SelectItem color="secondary" key="New in">
             New in
           </SelectItem>
@@ -76,14 +90,14 @@ const ProductTypes = () => {
         </Select>
 
         <Dialog>
-          <DialogTrigger className="rounded-xl bg-slate-300 px-6 py-[16px] hover:bg-slate-400">
+          <DialogTrigger className="text-white w-[100px] px-3 py-2 rounded-md ml-2 md:ml-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-500 hover:from-pink-500 hover:via-purple-500 hover:to-blue-500">
             Add new
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Tag</DialogTitle>
+              <DialogTitle>Add New Type</DialogTitle>
               <DialogDescription>
-                The Tag will be added to the Database
+                The Type will be added to the Database
               </DialogDescription>
               <Input
                 onValueChange={(value: string) => (types = value)}

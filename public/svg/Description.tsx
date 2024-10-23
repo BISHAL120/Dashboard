@@ -11,8 +11,8 @@ const Description = () => {
       >
         <g
           fill="none"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           strokeWidth="4"
         >
           <path
