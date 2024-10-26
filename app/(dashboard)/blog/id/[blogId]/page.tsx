@@ -22,7 +22,7 @@ const BlogPage = async ({ params }: { params: { blogId: string } }) => {
   return (
     <div>
       {/* <Editor id={params.blogId} initialData={getBlog} /> */}
-      <CreateBlog />
+      <CreateBlog id={params.blogId} initialData={getBlog} />
     </div>
   );
 };
