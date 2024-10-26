@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -8,29 +7,53 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@nextui-org/react";
 import { Select, SelectItem } from "@nextui-org/select";
-import { Button, Input } from "@nextui-org/react";
+import { ProductType } from "@prisma/client";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { db } from "@/lib/db";
-import { CreateTypes } from "./action/addProductType";
+import { CreateTypes } from "../action/addProductType";
+
+export type PType = {
+  id: string;
+  type: string;
+};
 
 type ChildProps = {
-  setTypes: React.Dispatch<React.SetStateAction<string>>;
-  value?: string;
+  setTypes: React.Dispatch<React.SetStateAction<PType>>;
+  value?: PType;
 };
 
 const ProductTypes: React.FC<ChildProps> = ({ setTypes, value }) => {
-  const [type, setType] = useState(value);
+  const [type, setType] = useState("");
+  const [productTypes, setProductTypes] = useState<ProductType[]>([
+    {
+      id: "671a251914a9c16cdcd29305",
+      type: "Normal",
+      createdAt: new Date("2024-10-24T10:44:41.262Z"),
+      updatedAt: new Date("2024-10-24T10:44:41.262Z"),
+    },
+  ]);
 
-  let types = "";
+  useEffect(() => {
+    axios
+      .get("/api/product/type")
+      .then((res) => {
+        setProductTypes(res.data.data);
+      })
+      .catch((error) => {
+        console.log("Error is ", error);
+      });
+  }, []);
+
   const addTypes = async () => {
     try {
       toast.loading("Adding new Product Type ...");
-      if (types !== "") {
-        await CreateTypes(types).then((res) => {
-          console.log(res);
+      if (type !== "") {
+        await CreateTypes(type).then((res) => {
+          document.location.reload();
           toast.dismiss();
-          types = "";
           toast.success("Product Type Added Successfully", {
             icon: "✅",
             position: "top-center",
@@ -58,35 +81,31 @@ const ProductTypes: React.FC<ChildProps> = ({ setTypes, value }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setType(e.target.value);
-    setTypes(e.target.value);
+    const key = e.target.value;
+    const findType = productTypes.find((type) => type.id === key);
+    if (!findType) return;
+    setTypes({
+      id: findType?.id,
+      type: findType?.type,
+    });
+    console.log(findType);
   };
 
   return (
     <div>
       <div className="flex justify-between items-center">
         <Select
-          value={type}
           onChange={handleChange}
           labelPlacement="inside"
           label="Add a Type"
           color="primary"
           className="max-w-lg lg:max-w-xl"
         >
-          <SelectItem color="secondary" key="Normal">
-            Normal
-          </SelectItem>
-          <SelectItem color="secondary" key="New in">
-            New in
-          </SelectItem>
-          <SelectItem color="secondary" key="50% Discount">
-            50% Discount
-          </SelectItem>
-          <SelectItem color="secondary" key="on Sale">
-            On Sale
-          </SelectItem>
-          <SelectItem color="secondary" key="limited edition">
-            limited edition
-          </SelectItem>
+          {productTypes.map((type) => (
+            <SelectItem key={type.id} value={type.type}>
+              {type.type}
+            </SelectItem>
+          ))}
         </Select>
 
         <Dialog>
@@ -100,7 +119,7 @@ const ProductTypes: React.FC<ChildProps> = ({ setTypes, value }) => {
                 The Type will be added to the Database
               </DialogDescription>
               <Input
-                onValueChange={(value: string) => (types = value)}
+                onValueChange={(value: string) => setType(value)}
                 className="pt-5"
               />
               <div className="w-2/4 ml-auto pt-7 flex gap-5 justify-end items-center">

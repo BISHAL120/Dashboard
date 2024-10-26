@@ -401,19 +401,21 @@ export default function EditProduct2() {
               <Label className="text-sm font-medium text-gray-700">
                 Image Preview
               </Label>
-              <div className="mt-2 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              <div className="mt-2 px-2 py-3 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 bg-gray-200 rounded-sm">
                 {product.images.map((file, index) => (
                   <div key={index} className="relative group">
                     <Image
                       as={NextImage}
                       src={URL.createObjectURL(file)}
+                      width={200}
+                      height={200}
                       alt={`Preview ${index + 1}`}
-                      className="h-24 w-24 rounded-md object-cover"
+                      className="rounded-md object-cover"
                     />
                     <button
                       type="button"
                       onClick={() => handleImageDelete(index)}
-                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute z-10 top-2 right-2 bg-red-500 text-white rounded-full p-1 shadow-md "
                     >
                       <X className="h-4 w-4" />
                     </button>

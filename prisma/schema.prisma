@@ -38,8 +38,8 @@ model Blog {
   value     String
   banner    String
   author    String
-  viewCount Int       @default(0) // Tracks how many views the blog has
-  likes     Int       @default(0) // Tracks the number of likes
+  viewCount Int       @default(0)
+  likes     Int       @default(0)
   comments  Comment[]
   published Boolean   @default(false)
   thumb     Thumbnail
@@ -54,6 +54,7 @@ model Comment {
   blog      Blog     @relation(fields: [blogId], references: [id])
   blogId    String   @db.ObjectId
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Notification {
@@ -82,36 +83,9 @@ type Varients {
   color Colors[]
 }
 
-model Product {
-  id             String         @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  description    String
-  price          Float
-  discountPrice  Float? // Optional field for discounted price
-  images         ProductImage[] // Array of additional images
-  category       String
-  type           String
-  tags           String[]
-  brand          String? // Optional field for brand name
-  weight         Float? // Optional field for product weight
-  dimensions     String? // Optional field for product dimensions (e.g., "10x5x3 cm")
-  varients       Varients[]
-  material       String? // Optional field for product material (e.g., "Cotton")
-  ratingsAverage Float? // Average rating for the product
-  ratingsCount   Int            @default(0) // Number of ratings for the product
-  reviews        Review[] // Relation to Review model
-  published      Boolean        @default(false) // Product publish status
-  isFeatured     Boolean        @default(false) // Whether the product is featured
-  Order          Order?         @relation(fields: [orderId], references: [id])
-  productType    ProductType    @relation(fields: [productTypeId], references: [id])
-  productTypeId  String         @db.ObjectId
-  orderId        String?        @db.ObjectId
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-
-  @@index([category])
-  @@index([brand])
-  @@index([type])
+type PType {
+  id   String
+  type String
 }
 
 model ProductType {
@@ -122,14 +96,50 @@ model ProductType {
   updatedAt DateTime  @updatedAt
 }
 
+model Product {
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  price          Float
+  discountPrice  Float?
+  category       String
+  brand          String
+  material       String?
+  weight         Float?
+  dimensions     String?
+  varients       Varients[]
+  ratingsCount   Int            @default(0)
+  ratingsAverage Float?
+  description    String
+  published      Boolean        @default(false)
+  isFeatured     Boolean        @default(false)
+  images         ProductImage[]
+  tags           String[]
+  type           PType
+  reviews        Review[]
+  productType    ProductType    @relation(fields: [productTypeId], references: [id])
+  productTypeId  String         @db.ObjectId
+  Category       Category?      @relation(fields: [categoryId], references: [id])
+  categoryId     String?        @db.ObjectId
+  Brand          Brand?         @relation(fields: [brandId], references: [id])
+  brandId        String?        @db.ObjectId
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  Order          Order?         @relation(fields: [orderId], references: [id])
+  orderId        String?        @db.ObjectId
+
+  @@index([category])
+  @@index([brand])
+  @@index([type])
+}
+
 model Review {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   rating    Int
   comment   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   product   Product  @relation(fields: [productId], references: [id])
   productId String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([productId])
 }
@@ -138,6 +148,45 @@ enum Role {
   USER
   SELLER
   ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  totalAmount Float
+  status      OrderStatus @default(PENDING)
+  Products    Product[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Brand {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  products   Product[]
+  Category   Category  @relation(fields: [categoryId], references: [id])
+  categoryId String    @db.ObjectId
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([name])
+}
+
+model Category {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  brands    Brand[]
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([name])
 }
 
 // model User {
@@ -163,19 +212,3 @@ enum Role {
 
 //   @@index([email])
 // }
-
-enum OrderStatus {
-  PENDING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-}
-
-model Order {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  products    Product[]
-  totalAmount Float // Total order amount
-  status      OrderStatus @default(PENDING) // Order status (enum)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-}

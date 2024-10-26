@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Something went wrong!", error);
     return NextResponse.json(
-      { error: "Failed to create Notification" },
+      { message: "Failed to create Notification", error: error },
       { status: 500 }
     );
   }

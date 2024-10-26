@@ -25,16 +25,16 @@ import "react-quill/dist/quill.snow.css";
 import CustomToolbar from "./toolbar";
 
 interface BlogFormProps {
-  setDescription: React.Dispatch<React.SetStateAction<string>>;
-  description: string;
+  setContent: React.Dispatch<React.SetStateAction<string>>;
+  content: string;
   className?: string;
 }
 
 type ChildProps = {};
 
 const Editor: React.FC<BlogFormProps> = ({
-  setDescription,
-  description,
+  setContent,
+  content,
   className,
 }) => {
   const quillRef = useRef(null); // Ref for ReactQuill
@@ -123,7 +123,7 @@ const Editor: React.FC<BlogFormProps> = ({
                 <div
                   className="w-full rounded-xl p-5"
                   dangerouslySetInnerHTML={{
-                    __html: description,
+                    __html: content,
                   }}
                 />
               </div>
@@ -162,10 +162,10 @@ const Editor: React.FC<BlogFormProps> = ({
                   <CustomToolbar />
 
                   <ReactQuill
-                    value={description}
+                    value={content}
                     ref={quillRef}
                     className={`border rounded-b-lg p-10 bg-white  ${className}`}
-                    onChange={setDescription}
+                    onChange={setContent}
                     placeholder="Add Blog Content here..."
                     modules={{
                       toolbar: {

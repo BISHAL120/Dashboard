@@ -69,6 +69,13 @@
     @apply bg-background text-foreground;
   }
 } */
+
+@media screen and (max-width: 710px) {
+  .Tabs > div {
+    flex-wrap: wrap !important;
+  }
+}
+
 h1 {
   font-size: 36px;
   font-weight: 700;
