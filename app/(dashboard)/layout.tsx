@@ -9,7 +9,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     <div>
       <div className="sticky top-0 bg-transparent/10 backdrop-blur-xl z-50">
         <Navigation />
-        <SideBar />
+        {/* <SideBar /> */}
       </div>
       {/* <SidebarNavigation className="" /> */}
       {children}

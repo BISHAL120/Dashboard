@@ -17,10 +17,18 @@ import {
   UserRoundCog,
 } from "lucide-react";
 import Link from "next/link";
+import { SidebarProvider, SidebarTrigger } from "../ui/sidebar";
+import { AppSidebar } from "../app-sidebar";
 
 const MenuBar = () => {
   return (
     <div>
+      <div className="absolute top-0 left-0 z-10">
+        <SidebarProvider>
+          <AppSidebar variant="floating" />
+          <SidebarTrigger />
+        </SidebarProvider>
+      </div>
       <div className="flex justify-start items-center gap-4">
         <Link href="/" className="text-2xl font-semibold text-blue-600 ">
           <LayoutDashboardIcon className="w-8 h-8" />

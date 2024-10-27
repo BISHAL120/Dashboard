@@ -186,6 +186,13 @@ const EditProduct: React.FC<ProductFormProps> = ({
             duration: 3000,
           });
           return;
+        case !images.length:
+          toast.dismiss();
+          toast.error("Add product Image", {
+            position: "top-center",
+            duration: 3000,
+          });
+          return;
         case !tags.length:
           toast.dismiss();
           toast.error("Add product tags for better search", {

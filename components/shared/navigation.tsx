@@ -5,7 +5,7 @@ import ProfilePopover from "../navigation/profile";
 
 const Navigation = () => {
   return (
-    <div className="bg-[#e7dede81] py-5">
+    <div className="bg-[#e7dede81] py-2">
       <div className="max-w-[1200px] mx-auto px-2 flex justify-between items-center">
         <div className="hidden lg:flex ml-20 xl:ml-0 ">
           <MenuBar />
