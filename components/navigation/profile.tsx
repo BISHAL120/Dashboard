@@ -174,10 +174,10 @@ const ProfilePopover = () => {
                     <path d="M6.496 3.75c0-.966.784-1.75 1.75-1.75h5.5a1.75 1.75 0 1 1 0 3.5h-5.5a1.75 1.75 0 0 1-1.75-1.75" />
                   </g>
                 </svg>
-                <div className="group-hover:text-[#ba3bde]">
+                <Link href="/admin" className="group-hover:text-[#ba3bde]">
                   <p className="text-medium font-semibold">My Tasks</p>
                   <p className="text-sm font-medium">To-do and Daily Tasks</p>
-                </div>
+                </Link>
               </div>
             </div>
             <div className="mt-7">

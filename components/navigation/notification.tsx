@@ -1,23 +1,61 @@
 "use client";
 import { Button } from "@nextui-org/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
-import { Image, User } from "@nextui-org/react";
-import NextImage from "next/image";
+import { User } from "@nextui-org/react";
+import type { Notification } from "@prisma/client";
+import axios from "axios";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 
-const Notification = () => {
+const NotificationComponent = ({ className }: { className?: string }) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const Read = () => {
-    toast.success("Notification marked as read", {
-      duration: 3000,
-      style: {
-        backgroundColor: "#000",
-        color: "whitesmoke",
-      },
-    });
+  const [notifications, setNotifications] = React.useState<Notification[]>([]);
+  const router = useRouter();
+
+  // Function to fetch notifications
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await axios.get("/api/notification/get");
+      setNotifications(res.data.data);
+    } catch (error) {
+      console.error("Failed to fetch notifications", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const markAsRead = async (id: string) => {
+    try {
+      await axios.post("/api/notification/read", { id });
+      toast.success("Notification marked as read", {
+        duration: 3000,
+        style: {
+          backgroundColor: "#000",
+          color: "whitesmoke",
+        },
+      });
+      await fetchNotifications(); // Fetch updated notifications after marking as read
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong!", {
+        duration: 3000,
+        position: "top-center",
+        style: {
+          backgroundColor: "#000",
+          color: "whitesmoke",
+        },
+      });
+    }
   };
+
+  const newNotification = notifications.find(
+    (notification) => notification.read === false
+  );
+  console.log(newNotification);
 
   return (
     <div className="cursor-pointer">
@@ -26,27 +64,34 @@ const Notification = () => {
         onOpenChange={(open) => setIsOpen(open)}
         backdrop="blur"
       >
-        <PopoverTrigger className="bg-slate-300 w-10 h-10 rounded-full flex justify-center items-center">
-          <div className="">
-            <div
-              className={`animate-bell p-0 w-8 h-8 flex justify-center items-center rounded-full`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="1em"
-                height="1em"
-                viewBox="0 0 24 24"
-                className="w-7 h-7"
+        <PopoverTrigger className="relative bg-slate-300 w-10 h-10 rounded-full flex justify-center items-center">
+          <div>
+            {newNotification && (
+              <div className="w-3 h-3 bg-blue-600 rounded-full absolute top-0 right-0" />
+            )}
+            <div className="">
+              <div
+                className={`${
+                  newNotification && "animate-bell"
+                } p-0 w-8 h-8 flex justify-center items-center rounded-full`}
               >
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6M9 17v1a3 3 0 0 0 6 0v-1m6-10.273A11.05 11.05 0 0 0 18.206 3M3 6.727A11.05 11.05 0 0 1 5.792 3"
-                />
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="1em"
+                  height="1em"
+                  viewBox="0 0 24 24"
+                  className="w-7 h-7"
+                >
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6M9 17v1a3 3 0 0 0 6 0v-1m6-10.273A11.05 11.05 0 0 0 18.206 3M3 6.727A11.05 11.05 0 0 1 5.792 3"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </PopoverTrigger>
@@ -55,24 +100,16 @@ const Notification = () => {
             <div className="flex justify-between items-center p-3">
               <div className="text-small font-bold">Notifications</div>
               <div className="text-tiny font-medium bg-blue-700 p-3 h-6 flex items-center justify-center text-white rounded-full">
-                5 new
+                {notifications.length} new
               </div>
             </div>
             <div className="overflow-auto no-scrollbar h-[400px] scroll-m-4 rounded-xl">
-              {Array.from({ length: 10 }).map((item, i) => (
+              {notifications.map((item, i) => (
                 <div
                   key={i}
                   className=" flex justify-between items-center hover:bg-gray-200 px-1 py-3 rounded-lg cursor-default "
                 >
                   <div className="flex justify-start items-center gap-2 ">
-                    {/*  <Image
-                      as={NextImage}
-                      src={"/image/profile/user-1.jpg"}
-                      alt="User Image"
-                      width={48}
-                      height={48}
-                      className="rounded-full w-10 h-10 md:w-12 md:h-12"
-                    /> */}
                     <User
                       name=""
                       avatarProps={{
@@ -80,28 +117,13 @@ const Notification = () => {
                       }}
                     />
                     <div>
-                      <div className="text-sm font-semibold">
-                        Md Rasal Hossin
-                      </div>
+                      <div className="text-sm font-semibold">{item.userId}</div>
                       <div className="text-xs font-normal mr-3 text-ellipsis whitespace-nowrap overflow-hidden">
-                        Make a new parched
+                        {item.message}
                       </div>
                     </div>
                   </div>
-                  {i % 2 === 0 ? (
-                    <div>
-                      <Button
-                        onClick={() => {
-                          setIsOpen(false);
-                          Read();
-                        }}
-                        size="sm"
-                        className="w-5 hover:bg-blue-600 hover:text-white bg-[#2c764a] text-white"
-                      >
-                        Read
-                      </Button>
-                    </div>
-                  ) : (
+                  {item.read ? (
                     <div>
                       <Link href={`/notification/${i}`}>
                         <Button
@@ -112,6 +134,19 @@ const Notification = () => {
                         </Button>
                       </Link>
                     </div>
+                  ) : (
+                    <div>
+                      <Button
+                        onClick={() => {
+                          setIsOpen(false);
+                          markAsRead(item.id);
+                        }}
+                        size="sm"
+                        className="w-5 hover:bg-blue-600 hover:text-white bg-[#2c764a] text-white"
+                      >
+                        Read
+                      </Button>
+                    </div>
                   )}
                 </div>
               ))}
@@ -120,7 +155,10 @@ const Notification = () => {
               <Button
                 onClick={() => {
                   setIsOpen(false);
-                  toast.success("All notifications marked as read");
+                  axios.post("/api/notification/read", {}).then(() => {
+                    fetchNotifications();
+                    toast.success("All notifications marked as read");
+                  });
                 }}
                 color="success"
                 className=" w-full"
@@ -135,4 +173,4 @@ const Notification = () => {
   );
 };
 
-export default Notification;
+export default NotificationComponent;

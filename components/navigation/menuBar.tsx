@@ -11,24 +11,15 @@ import {
   FilePlus2,
   Grid2X2,
   LayoutDashboardIcon,
-  PackageX,
   PackageXIcon,
   SquarePen,
   UserRoundCog,
 } from "lucide-react";
 import Link from "next/link";
-import { SidebarProvider, SidebarTrigger } from "../ui/sidebar";
-import { AppSidebar } from "../app-sidebar";
 
 const MenuBar = () => {
   return (
     <div>
-      <div className="absolute top-0 left-0 z-10">
-        <SidebarProvider>
-          <AppSidebar variant="floating" />
-          <SidebarTrigger />
-        </SidebarProvider>
-      </div>
       <div className="flex justify-start items-center gap-4">
         <Link href="/" className="text-2xl font-semibold text-blue-600 ">
           <LayoutDashboardIcon className="w-8 h-8" />
@@ -64,7 +55,7 @@ const MenuBar = () => {
             </Button>
           </DropdownTrigger>
           <DropdownMenu className="group" aria-label="Static Actions">
-            <DropdownItem href="/order/pending" key="pending" color="primary">
+            <DropdownItem href="/orders/pending" key="pending" color="primary">
               <div className="flex justify-start items-center gap-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -366,7 +357,11 @@ const MenuBar = () => {
                 Pending Orders
               </div>
             </DropdownItem>
-            <DropdownItem href="/order/complete" key="complete" color="primary">
+            <DropdownItem
+              href="/orders/complete"
+              key="complete"
+              color="primary"
+            >
               <div className="flex justify-start items-center gap-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -436,7 +431,7 @@ const MenuBar = () => {
                 Complete Orders
               </div>
             </DropdownItem>
-            <DropdownItem href="/order/cancel" key="cancel" color="primary">
+            <DropdownItem href="/orders/canceled" key="cancel" color="primary">
               <div className="flex justify-start items-center gap-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

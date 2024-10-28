@@ -36,7 +36,4 @@ export const FormSchema = z.object({
   published: z.boolean(),
   isFeatured: z.boolean(),
   type: z.string(),
-
-  ratingsCount: z.number(),
-  ratingsAverage: z.number(),
 });

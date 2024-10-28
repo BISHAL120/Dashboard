@@ -34,7 +34,7 @@ const navItems = [
     icon: ShoppingCart,
     href: "/orders",
     subItems: [
-      { name: "All Orders", href: "/orders/all" },
+      { name: "All Orders", href: "/orders" },
       { name: "Pending Orders", href: "/orders/pending" },
       { name: "Completed Orders", href: "/orders/completed" },
       { name: "Cancelled Orders", href: "/orders/cancelled" },

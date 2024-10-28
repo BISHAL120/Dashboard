@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
 import { Select, SelectItem } from "@nextui-org/select";
 import { ProductType } from "@prisma/client";
 import axios from "axios";
@@ -109,8 +109,10 @@ const ProductTypes: React.FC<ChildProps> = ({ setTypes, value }) => {
         </Select>
 
         <Dialog>
-          <DialogTrigger className="text-white w-[100px] px-3 py-2 rounded-md ml-2 md:ml-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-500 hover:from-pink-500 hover:via-purple-500 hover:to-blue-500">
-            Add new
+          <DialogTrigger className=" px-3 py-2 ml-2 md:ml-0 ">
+            <div className="z-0 group relative inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent data-[pressed=true]:scale-[0.97] outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 px-4 min-w-20 h-10 text-small gap-2 rounded-medium [&>svg]:max-w-[theme(spacing.8)] transition-transform-colors-opacity motion-reduce:transition-none bg-default text-default-foreground data-[hover=true]:opacity-hover bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-500 hover:from-pink-500 hover:via-purple-500 hover:to-blue-500">
+              Add new
+            </div>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

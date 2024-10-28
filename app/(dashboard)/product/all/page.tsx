@@ -459,7 +459,7 @@ export default function App() {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto my-10 px-2">
+    <div className="max-w-[1200px] mx-auto px-2">
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}

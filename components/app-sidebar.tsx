@@ -52,63 +52,72 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "Order's",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "Pending",
+          url: "/orders/pending",
         },
         {
-          title: "Starred",
-          url: "#",
+          title: "On the way",
+          url: "/orders/ontheway",
         },
         {
-          title: "Settings",
-          url: "#",
+          title: "Delivered",
+          url: "/orders/delivered",
+        },
+        {
+          title: "Canceled",
+          url: "/orders/canceled",
+        },
+        {
+          title: "All Orders",
+          url: "/orders",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Product's",
       url: "#",
+      isActive: true,
       icon: Bot,
       items: [
         {
-          title: "Genesis",
+          title: "Add new product",
           url: "#",
         },
         {
-          title: "Explorer",
+          title: "All products",
           url: "#",
         },
         {
-          title: "Quantum",
+          title: "Out of Stock",
           url: "#",
         },
       ],
     },
     {
-      title: "Documentation",
+      title: "Managements",
       url: "#",
       icon: BookOpen,
       items: [
         {
-          title: "Introduction",
+          title: "Super Admin",
           url: "#",
         },
         {
-          title: "Get Started",
+          title: "All Users",
           url: "#",
         },
         {
-          title: "Tutorials",
+          title: "All Managers",
           url: "#",
         },
         {
-          title: "Changelog",
+          title: "Top Customer's",
           url: "#",
         },
       ],
@@ -158,18 +167,19 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+    <div>
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <TeamSwitcher teams={data.teams} />
+        </SidebarHeader>
+        <SidebarContent>
+          <NavMain items={data.navMain} />
+          <NavProjects projects={data.projects} />
+        </SidebarContent>
+        <SidebarFooter>
+          <NavUser user={data.user} />
+        </SidebarFooter>
+      </Sidebar>
+    </div>
   );
 }

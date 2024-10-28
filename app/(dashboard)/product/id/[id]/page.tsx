@@ -18,17 +18,17 @@ const NewProduct = async ({ params }: { params: { id: string } }) => {
   }
   const getCategories = await db.category.findMany();
   const getBrands = await db.brand.findMany();
+  const getTags = await db.tag.findMany();
   return (
-    <div className="-z-10 min-h-[calc(100vh-80px)] w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]">
-      <div className="min-h-[calc(100vh-80px)] bg-[radial-gradient(circle_800px_at_100%_200px,#d5c5ff,transparent)]">
-        <EditProduct
-          categories={getCategories}
-          brands={getBrands}
-          id={params.id}
-          initialData={getProduct}
-        />
-        {/* <EditProduct2 /> */}
-      </div>
+    <div>
+      <EditProduct
+        categories={getCategories}
+        brands={getBrands}
+        getTags={getTags}
+        id={params.id}
+        initialData={getProduct}
+      />
+      {/* <EditProduct2 /> */}
     </div>
   );
 };

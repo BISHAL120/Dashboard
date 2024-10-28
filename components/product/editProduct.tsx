@@ -41,18 +41,21 @@ import GalleryIcon from "@/public/svg/GalleryIcon";
 import { HoverEffect } from "../aceternity/ui/card-hover-effect";
 import Editor from "../editor/editor";
 import ProductTypes from "./productTypes/components/productType";
-import { Brand, Category, Product } from "@prisma/client";
+import { Brand, Category, Product, Tag as DbTags } from "@prisma/client";
 import toast from "react-hot-toast";
 import { set } from "date-fns";
 import Add from "./productTypes/components/add";
 import { FormSchema } from "./productTypes/components/schema/schema";
 import axios from "axios";
+import { HexColorPicker } from "react-colorful";
+import { useRouter } from "next/navigation";
 
 interface ProductFormProps {
   initialData: Product | null;
   id: string;
   categories: Category[];
   brands: Brand[];
+  getTags: DbTags[];
 }
 
 type Color = {
@@ -76,7 +79,9 @@ const EditProduct: React.FC<ProductFormProps> = ({
   id,
   categories,
   brands,
+  getTags,
 }) => {
+  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string>(
     initialData ? "Updating product..." : "Creating product..."
@@ -84,6 +89,12 @@ const EditProduct: React.FC<ProductFormProps> = ({
   const [errorMessage, setErrorMessage] = useState<string>(
     initialData ? "Failed to update product" : "failed to Creating product..."
   );
+  const [successMessage, setSuccessMessage] = useState<string>(
+    initialData
+      ? "Product updated successfully"
+      : "Product created successfully"
+  );
+  const [color, setColor] = useState<string>("");
   const [images, setImages] = useState<File[]>([]);
   const [tags, setTags] = React.useState<Tag[]>([]);
   const [activeTagIndex, setActiveTagIndex] = React.useState<number | null>(
@@ -123,8 +134,6 @@ const EditProduct: React.FC<ProductFormProps> = ({
       weight: "",
       dimensions: "",
       varients: [],
-      ratingsCount: 0,
-      ratingsAverage: 0,
       description: "",
       published: true,
       isFeatured: false,
@@ -134,14 +143,23 @@ const EditProduct: React.FC<ProductFormProps> = ({
   });
 
   const { setValue } = form;
+  const resetForm = () => {
+    form.reset();
+    setContent("");
+    setVariants([]);
+    setImages([]);
+    setTags([]);
+    setActiveTagIndex(null);
+    setTypes({ id: "", type: "" });
+    router.push("/product/all");
+  };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    toast.loading(loadingMessage, {
+      position: "top-center",
+    });
     try {
       setLoading(true);
-      toast.loading(loadingMessage, {
-        position: "top-center",
-        duration: 3000,
-      });
 
       switch (true) {
         case !data.name:
@@ -204,7 +222,7 @@ const EditProduct: React.FC<ProductFormProps> = ({
 
       if (types.id === "" && types.type === "") {
         setTypes({
-          id: "",
+          id: "normal",
           type: "Normal",
         });
       }
@@ -220,15 +238,32 @@ const EditProduct: React.FC<ProductFormProps> = ({
       }
 
       setImageUrls(uploadedImageUrls);
+      const findCategory = categories.find(
+        (category) => category.id === data.category
+      );
+
+      const findBrand = brands.find((brand) => brand.id === data.brand);
       const newData = {
         ...data,
         type: types,
-        Description: content,
+        category: { id: findCategory?.id, name: findCategory?.name },
+        brand: { id: findBrand?.id, name: findBrand?.name },
+        description: content,
         images: uploadedImageUrls,
         tags: tags,
         varients: variants,
       };
       console.log(newData);
+      await axios.post("/api/product", newData).then((res) => {
+        console.log(res);
+        toast.dismiss();
+        setLoading(false);
+        toast.success(successMessage, {
+          position: "top-center",
+          duration: 3000,
+        });
+      });
+      resetForm();
     } catch (error) {
       console.log(error);
       setLoading(false);
@@ -246,42 +281,57 @@ const EditProduct: React.FC<ProductFormProps> = ({
   }
 
   // Handle input changes for a variant
-  const handleVariantChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-    type: "color" | "stock"
-  ) => {
-    const { value } = e.target;
+  const handleVariantChange = ({
+    e,
+    index,
+    type,
+  }: {
+    e: React.ChangeEvent<HTMLInputElement> | string;
+    index: number;
+    type: "color" | "stock";
+  }) => {
     const newColors = [...variant.color];
-    if (type === "color") {
-      newColors[index].color = value;
-    } else if (type === "stock") {
-      newColors[index].stock = Number(value);
+
+    if (typeof e !== "string") {
+      const { value } = e.target;
+      if (type === "stock") {
+        newColors[index].stock = Number(value);
+      }
+    }
+    if (typeof e === "string") {
+      if (type === "color") {
+        newColors[index].color = e;
+      }
     }
     setVariant({ ...variant, color: newColors });
   };
 
   const handleVariantEdit = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement> | string,
     colorObj: Color,
     index: number,
     vindex: number,
     type: "color" | "stock"
   ) => {
-    const { value } = e.target;
-
     const updatedVariants = [...variants];
     const updatedVariant = updatedVariants[vindex];
     const updatedColor = updatedVariant.color[index];
 
-    if (type === "color") {
-      updatedColor.color = value; // Update color
-    } else if (type === "stock") {
-      updatedColor.stock = Number(value); // Update stock and convert it to a number
+    if (typeof e !== "string") {
+      const { value } = e.target;
+      if (type === "stock") {
+        updatedColor.stock = Number(value); // Update stock and convert it to a number
+      }
+    }
+
+    if (typeof e === "string") {
+      if (type === "color") {
+        updatedColor.color = e; // Update color
+      }
     }
 
     //   // Set the updated variants array to the state
-    setVariants(updatedVariants);
+    else setVariants(updatedVariants);
   };
 
   // // Handle size change
@@ -354,9 +404,19 @@ const EditProduct: React.FC<ProductFormProps> = ({
     <div className="max-w-[1450px] mx-auto h-full px-2 ">
       <div className="flex justify-center w-full flex-col">
         <div className="flex justify-end gap-2 py-2">
-          <Button className="bg-red-800 text-white">Delete</Button>
-          <Button color="warning">Draft</Button>
-          <Button color="primary" type="submit" form="productForm">
+          <Button isDisabled={loading} className="bg-red-800 text-white ">
+            Delete
+          </Button>
+          <Button isDisabled={loading} color="warning">
+            Draft
+          </Button>
+          <Button
+            isDisabled={loading}
+            isLoading={loading}
+            color="primary"
+            type="submit"
+            form="productForm"
+          >
             Save Product
           </Button>
         </div>
@@ -665,7 +725,7 @@ const EditProduct: React.FC<ProductFormProps> = ({
                                     onValueChange={field.onChange}
                                   >
                                     <p className="text-base font-semibold">
-                                      Want to featured this product ?
+                                      Feature this product ?
                                     </p>
                                     <div className="flex items-center justify-between ">
                                       <p>Check this box</p>
@@ -728,24 +788,30 @@ const EditProduct: React.FC<ProductFormProps> = ({
                           key={index}
                           className="flex items-center gap-2 mb-2"
                         >
-                          <Input
-                            type="text"
-                            label="Color"
-                            color="primary"
-                            className="w-2/3"
-                            value={colorObj.color}
-                            onChange={(e) =>
-                              handleVariantChange(e, index, "color")
-                            }
+                          <HexColorPicker
+                            color={colorObj.color}
+                            onChange={(color) => {
+                              setColor(color);
+                              handleVariantChange({
+                                e: color,
+                                index,
+                                type: "color",
+                              });
+                            }}
                           />
+                          <div
+                            className="p-2 w-[200px] h-[200px] rounded-md"
+                            style={{ backgroundColor: colorObj.color }}
+                          />
+
                           <Input
                             type="number"
                             label="Stock"
                             color="primary"
                             value={colorObj.stock.toString()}
-                            className="w-1/4"
+                            className="w-1/2"
                             onChange={(e) =>
-                              handleVariantChange(e, index, "stock")
+                              handleVariantChange({ e, index, type: "stock" })
                             }
                           />
                           <Button
@@ -960,7 +1026,7 @@ const EditProduct: React.FC<ProductFormProps> = ({
                             )}
                           />
                           <div className="flex flex-wrap gap-2">
-                            {sampleTags.map((tag) =>
+                            {getTags.map((tag) =>
                               tags.find((t) => t.text === tag.text) ? null : (
                                 <Chip
                                   key={tag.id}

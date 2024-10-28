@@ -3,7 +3,7 @@ import "./loading.css";
 
 const Loading = () => {
   return (
-    <div className="w-screen h-[calc(50vh_-_120px)] flex justify-center">
+    <div className="w-screen h-[calc(50vh_-_120px)] flex justify-center bg-transparent">
       <div className="loader">
         <span className="l">
           <svg

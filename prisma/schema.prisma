@@ -69,11 +69,12 @@ model Notification {
 }
 
 type ProductImage {
-  imageUrl String
-  filename String
+  url      String
+  FileName String
 }
 
 type Colors {
+  id    String
   color String
   stock Int
 }
@@ -99,15 +100,15 @@ model ProductType {
 model Product {
   id             String         @id @default(auto()) @map("_id") @db.ObjectId
   name           String
-  price          Float
-  discountPrice  Float?
-  category       String
-  brand          String
+  price          String
+  discountPrice  String?
+  categoryName   String
+  brandName      String
   material       String?
-  weight         Float?
+  weight         String?
   dimensions     String?
   varients       Varients[]
-  ratingsCount   Int            @default(0)
+  ratingsCount   Int?           @default(0)
   ratingsAverage Float?
   description    String
   published      Boolean        @default(false)
@@ -116,20 +117,26 @@ model Product {
   tags           String[]
   type           PType
   reviews        Review[]
+  orderItems     OrderItem[]
   productType    ProductType    @relation(fields: [productTypeId], references: [id])
   productTypeId  String         @db.ObjectId
-  Category       Category?      @relation(fields: [categoryId], references: [id])
-  categoryId     String?        @db.ObjectId
-  Brand          Brand?         @relation(fields: [brandId], references: [id])
-  brandId        String?        @db.ObjectId
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  Order          Order?         @relation(fields: [orderId], references: [id])
-  orderId        String?        @db.ObjectId
+  category       Category       @relation(fields: [categoryId], references: [id])
+  categoryId     String         @db.ObjectId
+  brand          Brand          @relation(fields: [brandId], references: [id])
+  brandId        String         @db.ObjectId
 
-  @@index([category])
-  @@index([brand])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryName])
+  @@index([brandName])
   @@index([type])
+}
+
+model Tag {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  text      String   @unique
+  createdAt DateTime @default(now())
 }
 
 model Review {
@@ -161,9 +168,22 @@ model Order {
   id          String      @id @default(auto()) @map("_id") @db.ObjectId
   totalAmount Float
   status      OrderStatus @default(PENDING)
-  Products    Product[]
+  orderItems  OrderItem[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  price     Float // Price at the time of order
+  quantity  Int     @default(1)
+  productId String  @db.ObjectId
+  orderId   String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id])
+
+  @@index([productId])
+  @@index([orderId])
 }
 
 model Brand {
