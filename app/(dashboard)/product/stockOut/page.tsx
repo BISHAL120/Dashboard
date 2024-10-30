@@ -213,7 +213,8 @@ export default function App() {
                 </Tooltip>
               </DialogTrigger>
               <DialogContent className="w-[900px]">
-                <ProductModal />
+                {/* <ProductModal /> */}
+                <div>TODO: Add content with data</div>
               </DialogContent>
             </Dialog>
             <Divider className="h-5" orientation="vertical" />
