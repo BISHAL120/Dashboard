@@ -1,7 +1,7 @@
 import React from "react";
 import loadingCss from "./loading.module.css";
 
-const Loading = () => {
+const ProductLoading = () => {
   return (
     <div className="w-full h-[calc(100vh-90px)] flex justify-center items-center bg-[#ebdada]">
       <div className={`${loadingCss.center_div}`}>
@@ -20,4 +20,4 @@ const Loading = () => {
   );
 };
 
-export default Loading;
+export default ProductLoading;

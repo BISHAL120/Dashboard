@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const data = await db.notification.findMany();
+    const data = await db.notification.findMany({
+      orderBy: { createdAt: "desc" },
+    });
     return NextResponse.json({ message: "Successful", data: data });
   } catch (error) {
     console.log("Error is ", error);

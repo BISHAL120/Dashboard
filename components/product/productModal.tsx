@@ -20,22 +20,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button, Tabs, Tab } from "@nextui-org/react";
+import { Product } from "@prisma/client";
 
-export default function ProductModal() {
+export default function ProductModal({ product }: { product: Product }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const imageRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const images = [
-    "https://picsum.photos/seed/product8/1000/1000.webp",
-    "https://picsum.photos/seed/product7/300/300.webp",
-    "https://picsum.photos/seed/product6/300/300.webp",
-    "https://picsum.photos/seed/product5/300/300.webp",
-    "https://picsum.photos/seed/product4/300/300.webp",
-    "https://picsum.photos/seed/product3/300/300.webp",
-    "https://picsum.photos/seed/product2/300/300.webp",
-    "https://picsum.photos/seed/product1/300/300.webp",
-    "https://picsum.photos/seed/product9/300/300.webp",
-  ];
+  const images = product.images.map((image) => image.url);
 
   const colorVariants = [
     { name: "Cream", class: "bg-amber-100" },
@@ -124,17 +115,21 @@ export default function ProductModal() {
           </div>
         </div>
         <div className="space-y-6">
-          <div className="text-3xl font-bold ">Product Title Here</div>
+          <div className="text-3xl font-bold ">{product.name}</div>
           <div className="flex items-center justify-between">
-            <div className="text-3xl font-semibold text-purple-600">$69.00</div>
+            <div className="text-3xl font-semibold text-purple-600">
+              {product.price}
+            </div>
             <div className="flex w-[130px] flex-wrap justify-start items-center">
-              {[1, 2, 3, 4, 5].map((star) => (
+              {/* {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
                   className="w-5 h-5 fill-yellow-400 stroke-yellow-400"
                 />
-              ))}
-              <span className="mt-2 text-sm text-gray-600">(1283 Reviews)</span>
+              ))} */}
+              <span className="mt-2 text-sm text-gray-600">
+                ({product?.ratingsCount} Reviews)
+              </span>
             </div>
           </div>
           <div>

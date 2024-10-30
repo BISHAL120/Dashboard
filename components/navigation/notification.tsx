@@ -55,7 +55,6 @@ const NotificationComponent = ({ className }: { className?: string }) => {
   const newNotification = notifications.find(
     (notification) => notification.read === false
   );
-  console.log(newNotification);
 
   return (
     <div className="cursor-pointer">
@@ -119,7 +118,10 @@ const NotificationComponent = ({ className }: { className?: string }) => {
                     <div>
                       <div className="text-sm font-semibold">{item.userId}</div>
                       <div className="text-xs font-normal mr-3 text-ellipsis whitespace-nowrap overflow-hidden">
-                        {item.message}
+                        {item.message}{" "}
+                      </div>
+                      <div className="text-xs font-normal mr-3 text-ellipsis whitespace-nowrap overflow-hidden">
+                        {new Date(item.createdAt).toLocaleString()}
                       </div>
                     </div>
                   </div>

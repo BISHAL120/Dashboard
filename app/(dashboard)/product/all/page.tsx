@@ -34,10 +34,11 @@ import {
   useDisclosure,
   User,
 } from "@nextui-org/react";
+import ProductLoading from "./loading";
 import { format } from "date-fns";
 import Link from "next/link";
-import React from "react";
-import { columns, statusOptions, users } from "./data/data";
+import React, { useEffect } from "react";
+import { columns } from "./data/data";
 import { capitalize } from "./data/utils";
 import { ChevronDownIcon } from "./icons/ChevronDownIcon";
 import { DeleteIcon } from "./icons/DeleteIcon";
@@ -46,6 +47,8 @@ import { EyeIcon } from "./icons/EyeIcon";
 import { PlusIcon } from "./icons/PlusIcon";
 import { SearchIcon } from "./icons/SearchIcon";
 import toast from "react-hot-toast";
+import { Product } from "@prisma/client";
+import axios from "axios";
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   In_Stock: "primary",
@@ -55,8 +58,8 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 
 const INITIAL_VISIBLE_COLUMNS = [
   "id",
-  "price",
   "name",
+  "price",
   "status",
   "category",
   "actions",
@@ -64,44 +67,32 @@ const INITIAL_VISIBLE_COLUMNS = [
   "Created_At",
 ];
 
-type ProductVariant = {
-  size: string;
-  color: string[];
-};
-
-type TProduct = {
-  id: number;
-  name: string;
-  price: number;
-  status: string;
-  stock: number;
-  description: string;
-  image: string;
-  category: string;
-  subcategory: string;
-  color: string;
-  size: string;
-  Created_At: string;
-  variants: ProductVariant[];
-};
-
 export default function App() {
+  const [Loading, setLoading] = React.useState(false);
+  const [data, setData] = React.useState<Product[]>([]);
+  const [count, setCount] = React.useState(10);
   const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
-    new Set([])
-  );
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
-  const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-    column: "age",
+    column: "createdAt",
     direction: "ascending",
   });
-
   const [page, setPage] = React.useState(1);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get(`/api/product?skip=${(page - 1) * rowsPerPage}&take=${rowsPerPage}`)
+      .then((res) => {
+        setData(res.data.data);
+        setCount(res.data.count);
+        console.log(res.data.data);
+        setLoading(false);
+      });
+  }, [page, rowsPerPage]);
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -114,26 +105,18 @@ export default function App() {
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...users];
+    let filteredProducts = [...data];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>
-        user.name.toLowerCase().includes(filterValue.toLowerCase())
-      );
-    }
-    if (
-      statusFilter !== "all" &&
-      Array.from(statusFilter).length !== statusOptions.length
-    ) {
-      filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter).includes(user.status)
+      filteredProducts = filteredProducts.filter((product) =>
+        product.name.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
 
-    return filteredUsers;
-  }, [filterValue, statusFilter, hasSearchFilter]);
+    return filteredProducts;
+  }, [filterValue, data, hasSearchFilter]);
 
-  const pages = Math.ceil(filteredItems.length / rowsPerPage);
+  const pages = Math.ceil(count / rowsPerPage);
 
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -143,38 +126,42 @@ export default function App() {
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: TProduct, b: TProduct) => {
-      const first = a[sortDescriptor.column as keyof TProduct] as number;
-      const second = b[sortDescriptor.column as keyof TProduct] as number;
+    return [...items].sort((a: Product, b: Product) => {
+      const first = a[sortDescriptor.column as keyof Product] as number;
+      const second = b[sortDescriptor.column as keyof Product] as number;
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
 
-  // console.log(selectedKeys);
-
   const renderCell = React.useCallback(
-    (user: TProduct, columnKey: React.Key) => {
-      const cellValue = user[columnKey as keyof TProduct];
+    (data: Product, columnKey: React.Key) => {
+      const cellValue = data[columnKey as keyof Product];
 
       switch (columnKey) {
+        case "id":
+          return (
+            <div>{data.id.substring(data.id.length, data.id.length - 5)}</div>
+          );
         case "name":
           return (
             <User
-              avatarProps={{ radius: "lg", src: user.image }}
-              description={user.subcategory}
-              name={user.name}
+              avatarProps={{ radius: "lg", src: data.images[0].url }}
+              description={data.brandName}
+              name={data.name}
             >
-              {user.subcategory}
+              {data.categoryName}
             </User>
           );
         case "category":
           return (
             <div className="flex flex-col">
-              <p className="text-bold text-small capitalize">{user.category}</p>
+              <p className="text-bold text-small capitalize">
+                {data.categoryName}
+              </p>
               <p className="text-bold text-tiny capitalize text-default-400">
-                {user.subcategory}
+                {data.brandName}
               </p>
             </div>
           );
@@ -182,7 +169,7 @@ export default function App() {
           return (
             <div className="flex flex-col">
               <p className="text-bold text-small capitalize">
-                {format(user.Created_At, "MMMM dd, yyyy")}
+                {format(data.createdAt, "MMMM dd, yyyy")}
               </p>
             </div>
           );
@@ -190,22 +177,28 @@ export default function App() {
           return (
             <Chip
               className="capitalize"
-              color={statusColorMap[user.status]}
+              color={
+                statusColorMap[
+                  data.varients[0].color[0].stock ? "In_Stock" : "Stock_Out"
+                ]
+              }
               size="sm"
               variant="shadow"
             >
-              {user.status}
+              {data.varients[0].color[0].stock ? "In_Stock" : "Stock_Out"}
             </Chip>
           );
         case "color":
           return (
             <div className="space-y-2">
-              {user.variants.map((v, i) => (
+              {data.varients.map((v, i) => (
                 <div className="flex gap-2" key={i}>
                   {v.color.map((color, i) => (
                     <div
                       key={i}
-                      style={{ backgroundColor: color ? color : "" }}
+                      style={{
+                        backgroundColor: color.color ? color.color : "",
+                      }}
                       className={`w-4 h-4 rounded-full ${
                         cellValue ? `bg-${cellValue}-100` : ""
                       }`}
@@ -215,17 +208,33 @@ export default function App() {
               ))}
             </div>
           );
+        case "color":
+          return (
+            <div className="space-y-2">
+              {data.varients.map((v, i) => (
+                <div className="flex gap-2" key={i}>
+                  {v.color.map((color, i) => (
+                    <div key={i}>{color.stock}</div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          );
+        case "size":
+          return (
+            <div className="space-y-2">
+              {data.varients.map((v, i) => (
+                <div className="flex gap-2" key={i}>
+                  {v.size}
+                </div>
+              ))}
+            </div>
+          );
         case "actions":
           return (
             <div className="relative flex items-center justify-center gap-3">
-              {/* <Tooltip color="danger" content="Delete user">
-                <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                  <EyeIcon />
-                </span>
-              </Tooltip> */}
-
               <Dialog>
-                <DialogTrigger>
+                <DialogTrigger className="z-10">
                   <Tooltip color="primary" content="Details">
                     <span className="z-10 text-lg text-default-400 cursor-pointer active:opacity-50">
                       <EyeIcon />
@@ -233,27 +242,16 @@ export default function App() {
                   </Tooltip>
                 </DialogTrigger>
                 <DialogContent className="w-[900px]">
-                  <ProductModal />
+                  <ProductModal product={data} />
                 </DialogContent>
               </Dialog>
               <Divider className="h-5" orientation="vertical" />
               <Tooltip color="foreground" content="Edit">
-                <Link href={`/product/add/${user.id}`}>
+                <Link href={`/product/add/${data.id}`}>
                   <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
                     <EditIcon />
                   </span>
                 </Link>
-              </Tooltip>
-              <Divider className="h-5" orientation="vertical" />
-              <Tooltip color="danger" content="Delete">
-                <span onClick={onOpen}>
-                  <span
-                    onClick={() => setDeleteId(user.id)}
-                    className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                  >
-                    <DeleteIcon />
-                  </span>
-                </span>
               </Tooltip>
             </div>
           );
@@ -263,7 +261,7 @@ export default function App() {
           }
       }
     },
-    [onOpen]
+    []
   );
 
   const onNextPage = React.useCallback(() => {
@@ -320,30 +318,6 @@ export default function App() {
                   endContent={<ChevronDownIcon className="text-small" />}
                   variant="flat"
                 >
-                  Status
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode="multiple"
-                onSelectionChange={setStatusFilter}
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem key={status.uid} className="capitalize">
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button
-                  endContent={<ChevronDownIcon className="text-small" />}
-                  variant="flat"
-                >
                   Columns
                 </Button>
               </DropdownTrigger>
@@ -374,7 +348,7 @@ export default function App() {
         </div>
         <div className="flex justify-between items-center pr-5">
           <span className="text-default-400 text-small">
-            Total {users.length} users
+            Total {data.length} Products
           </span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
@@ -394,7 +368,7 @@ export default function App() {
     );
   }, [
     filterValue,
-    statusFilter,
+    data.length,
     visibleColumns,
     onSearchChange,
     onRowsPerPageChange,
@@ -404,11 +378,6 @@ export default function App() {
   const bottomContent = React.useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
-        <span className="w-[30%] text-small text-default-400">
-          {selectedKeys === "all"
-            ? "All items selected"
-            : `${selectedKeys.size} of ${filteredItems.length} selected`}
-        </span>
         <Pagination
           isCompact
           showControls
@@ -438,70 +407,23 @@ export default function App() {
         </div>
       </div>
     );
-  }, [
-    selectedKeys,
-    page,
-    pages,
-    filteredItems.length,
-    onNextPage,
-    onPreviousPage,
-  ]);
+  }, [page, pages, onNextPage, onPreviousPage]);
 
-  const [deleteId, setDeleteId] = React.useState(0);
-
-  const handleDelete = () => {
-    const findUser = users.find((user) => user.id === deleteId);
-    console.log("Deleted User:", findUser, findUser?.id);
-    toast.success("Product deleted successfully", {
-      position: "top-center",
-      duration: 2000,
-    });
-  };
-
+  if (Loading) {
+    return <ProductLoading />;
+  }
   return (
     <div className="max-w-[1200px] mx-auto px-2">
-      <Modal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        isKeyboardDismissDisabled={true}
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                Are You Sure?
-              </ModalHeader>
-              <ModalBody>
-                <p>This action cannot be undone.</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-                <Button onClick={handleDelete} color="danger" onPress={onClose}>
-                  Confirm
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
       <div>
         <Table
           aria-label="Example table with custom cells, pagination and sorting"
           isHeaderSticky
           bottomContent={bottomContent}
           bottomContentPlacement="outside"
-          classNames={{
-            wrapper: "h-[calc(100vh-230px)] px-2",
-          }}
-          selectedKeys={selectedKeys}
-          selectionMode="multiple"
           sortDescriptor={sortDescriptor}
           topContent={topContent}
           topContentPlacement="outside"
           color="primary"
-          onSelectionChange={setSelectedKeys}
           onSortChange={setSortDescriptor}
         >
           <TableHeader columns={headerColumns}>
@@ -515,13 +437,9 @@ export default function App() {
               </TableColumn>
             )}
           </TableHeader>
-          <TableBody
-            loadingContent={<Spinner />}
-            emptyContent={"No data found"}
-            items={sortedItems}
-          >
+          <TableBody items={sortedItems}>
             {(item) => (
-              <TableRow key={item.id}>
+              <TableRow className="border border-t" key={item.id}>
                 {(columnKey) => (
                   <TableCell>{renderCell(item, columnKey)}</TableCell>
                 )}

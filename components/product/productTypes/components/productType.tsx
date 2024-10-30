@@ -7,13 +7,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button, Input } from "@nextui-org/react";
+import { Button, Input, Tooltip } from "@nextui-org/react";
 import { Select, SelectItem } from "@nextui-org/select";
 import { ProductType } from "@prisma/client";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { CreateTypes } from "../action/addProductType";
+import { CreateTypes, DeleteTypes } from "../action/addProductType";
+import { MoveUpRight, Trash2 } from "lucide-react";
 
 export type PType = {
   id: string;
@@ -27,14 +28,7 @@ type ChildProps = {
 
 const ProductTypes: React.FC<ChildProps> = ({ setTypes, value }) => {
   const [type, setType] = useState("");
-  const [productTypes, setProductTypes] = useState<ProductType[]>([
-    {
-      id: "671a251914a9c16cdcd29305",
-      type: "Normal",
-      createdAt: new Date("2024-10-24T10:44:41.262Z"),
-      updatedAt: new Date("2024-10-24T10:44:41.262Z"),
-    },
-  ]);
+  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
 
   useEffect(() => {
     axios
@@ -71,8 +65,33 @@ const ProductTypes: React.FC<ChildProps> = ({ setTypes, value }) => {
     } catch (error) {
       console.log("Error is ", error);
       toast.dismiss();
-      toast.error("Please enter Product Type", {
+      toast.error("Failed to add Product Type", {
         icon: "❌",
+        position: "top-center",
+        duration: 3000,
+      });
+    }
+  };
+  const deleteType = (id: string) => {
+    try {
+      toast.loading("Deleting Product Type ...");
+      DeleteTypes(id).then((res) => {
+        document.location.reload();
+        toast.dismiss();
+        toast.success("Product Type Deleted Successfully", {
+          position: "top-center",
+          duration: 3000,
+        });
+      });
+    } catch (error) {
+      console.log("Error is ", error);
+      toast.dismiss();
+      toast.error("Failed to Delete Product Type", {
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
         position: "top-center",
         duration: 3000,
       });
@@ -101,11 +120,29 @@ const ProductTypes: React.FC<ChildProps> = ({ setTypes, value }) => {
           color="primary"
           className="max-w-lg lg:max-w-xl"
         >
-          {productTypes.map((type) => (
-            <SelectItem key={type.id} value={type.type}>
-              {type.type}
+          {productTypes.length ? (
+            productTypes.map((type) => (
+              <SelectItem key={type.id} value={type.type}>
+                <div className="flex justify-between items-center">
+                  {type.type}{" "}
+                  <Tooltip content="Delete">
+                    <p className="bg-danger-400 p-1 rounded-md">
+                      <Trash2 size={18} onClick={() => deleteType(type.id)} />
+                    </p>
+                  </Tooltip>
+                </div>
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem key="1" value="">
+              <div className="flex justify-between items-center">
+                <p> Please Add new Type</p>
+                <p>
+                  <MoveUpRight size={18} />
+                </p>
+              </div>
             </SelectItem>
-          ))}
+          )}
         </Select>
 
         <Dialog>

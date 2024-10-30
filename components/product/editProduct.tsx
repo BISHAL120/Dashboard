@@ -221,10 +221,12 @@ const EditProduct: React.FC<ProductFormProps> = ({
       }
 
       if (types.id === "" && types.type === "") {
-        setTypes({
-          id: "normal",
-          type: "Normal",
+        toast.dismiss();
+        toast.error("Add product Type", {
+          position: "top-center",
+          duration: 3000,
         });
+        return;
       }
 
       const uploadedImageUrls = [];

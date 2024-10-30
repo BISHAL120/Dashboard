@@ -11,12 +11,6 @@ const columns = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-const statusOptions = [
-  { name: "In_Stock", uid: "In_Stock" },
-  { name: "Stock_Out", uid: "Stock_Out" },
-  { name: "Draft", uid: "Draft" },
-];
-
 const users = [
   {
     id: 1,
@@ -2018,4 +2012,4 @@ const users = [
   },
 ];
 
-export { columns, users, statusOptions };
+export { columns, users };

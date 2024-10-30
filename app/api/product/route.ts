@@ -1,8 +1,8 @@
 import { NotificationType } from "@/Constants/notificationType";
 import { db } from "@/lib/db";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const {
       name,
@@ -111,6 +111,37 @@ export async function POST(req: Request) {
     console.log("Upload product error:", error);
     return NextResponse.json(
       { message: "Failed to create product" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const searchParams = req.nextUrl.searchParams;
+    const skip = Number(searchParams.get("skip"));
+    const take = Number(searchParams.get("take"));
+    console.log(skip, take);
+
+    const data = await db.product.findMany({
+      take: take,
+      skip: skip,
+      orderBy: { createdAt: "desc" },
+      include: {
+        reviews: true,
+      },
+    });
+    const count = await db.product.count();
+
+    return NextResponse.json({
+      message: "Successful",
+      data: data,
+      count: count,
+    });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json(
+      { message: "Failed to get the Data", Error: error },
       { status: 500 }
     );
   }
