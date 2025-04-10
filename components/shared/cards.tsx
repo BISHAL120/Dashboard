@@ -69,11 +69,11 @@ const topCards: cardType[] = [
 
 const Cards = () => {
   return (
-    <div className="flex justify-center items-center flex-wrap min-h-[200px] mt-3">
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:flex gap-4 justify-items-center min-h-[200px] mt-3">
       {topCards.map((card, i) => (
         <div
           key={i}
-          className={` w-[300px] md:w-[224px] lg:w-[300px] xl:w-[172px] h-[161px] flex justify-center items-center m-3 rounded-lg shadow-2xl ${card.shadow} ${card.bgcolor}`}
+          className={` w-[95%] md:w-[224px] lg:w-[300px] xl:w-[172px] h-[161px] flex justify-center items-center m-3 rounded-lg shadow-2xl ${card.shadow} ${card.bgcolor}`}
         >
           <div className={`flex flex-col items-center justify-center p-6 `}>
             <Image

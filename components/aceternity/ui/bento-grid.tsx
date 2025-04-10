@@ -6,26 +6,7 @@ import { Image } from "@nextui-org/react";
 import NextImage from "next/image";
 import Link from "next/link";
 
-export const BentoGrid = ({
-  className,
-  children,
-}: {
-  className?: string;
-  children?: React.ReactNode;
-}) => {
-  return (
-    <div
-      className={cn(
-        "grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto ",
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-};
-
-export const BentoGridItem = ({
+export const BlogCard = ({
   className,
   title,
   published,
@@ -52,13 +33,13 @@ export const BentoGridItem = ({
         className
       )}
     >
-      <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100">
+      <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100 overflow-hidden">
         <Image
           as={NextImage}
           width={350}
           height={250}
           src={image ? image : "/image/No Preview.jpeg"}
-          className="object-contain mx-auto rounded-xl"
+          className="object-contain mx-auto rounded-xl group-hover/bento:scale-110 transition duration-200"
           alt="Title Image"
         ></Image>
       </div>

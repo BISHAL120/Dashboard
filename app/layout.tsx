@@ -1,15 +1,8 @@
-import "./globals.css";
-import { Poppins } from "next/font/google";
-import type { Metadata } from "next";
 import { NextUIProvider } from "@nextui-org/system";
+import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
 import { Toaster } from "react-hot-toast";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import Navigation from "@/components/shared/navigation";
+import "./globals.css";
 
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -27,7 +20,6 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* <head /> */}
       <body className={poppins.className}>
         <NextUIProvider className="">
           {children}

@@ -6,6 +6,8 @@ import { Divider, User } from "@nextui-org/react";
 import NextImage from "next/image";
 import Link from "next/link";
 import profileCss from "./profile.module.css";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { Mail } from "lucide-react";
 
 const ProfilePopover = () => {
   return (
@@ -54,52 +56,7 @@ const ProfilePopover = () => {
                   </p>
 
                   <div className="flex justify-start items-center gap-2 mt-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="1em"
-                      height="1em"
-                      viewBox="0 0 24 24"
-                      className="w-6 h-6 "
-                    >
-                      <g
-                        fill="none"
-                        stroke="#ba3bde"
-                        strokeLinecap="round"
-                        strokeWidth="2"
-                      >
-                        <rect
-                          width="18"
-                          height="14"
-                          x="3"
-                          y="5"
-                          stroke-dasharray="64"
-                          stroke-dashoffset="64"
-                          rx="1"
-                        >
-                          <animate
-                            fill="freeze"
-                            attributeName="stroke-dashoffset"
-                            dur="1s"
-                            begin="4s"
-                            values="64;0"
-                            repeatCount="indefinite"
-                          />
-                        </rect>
-                        <path
-                          stroke-dasharray="24"
-                          stroke-dashoffset="24"
-                          d="M3 6.5L12 12L21 6.5"
-                        >
-                          <animate
-                            fill="freeze"
-                            attributeName="stroke-dashoffset"
-                            begin="0.45s"
-                            dur="0.3s"
-                            values="24;0"
-                          />
-                        </path>
-                      </g>
-                    </svg>
+                    <Mail className="w-5 h-5" />
                     <p
                       className={`${profileCss.typewriter} text-base font-medium`}
                     >
@@ -110,7 +67,7 @@ const ProfilePopover = () => {
               </div>
             </div>
             <Divider className="my-2" />
-            <div className={`${profileCss.textBlink} mt-10 space-y-1`}>
+            <div className={` mt-10 space-y-1`}>
               <Link
                 href="/profile"
                 className=" flex justify-start items-center gap-3 group cursor-pointer hover:bg-gray-200 rounded-lg p-3"

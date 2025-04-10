@@ -1,7 +1,7 @@
 "use client";
 import { getAllBlogs } from "@/action/getBlogs";
 import { Blog } from "@prisma/client";
-import { BentoGrid, BentoGridItem } from "../ui/bento-grid";
+import { BlogCard } from "../ui/bento-grid";
 import { Pagination } from "@nextui-org/react";
 import { db } from "@/lib/db";
 import { useRouter } from "next/navigation";
@@ -23,9 +23,9 @@ const BlogGrid = ({ data, count }: { data: Blog[]; count?: number }) => {
 
   return (
     <div className="min-h-[calc(100vh-90px)] flex flex-col justify-between">
-      <BentoGrid className="max-w-[1200px] mx-auto my-10">
+      <div className="max-w-[1200px] mx-auto my-10 grid grid-cols-1 md:grid-cols-3 gap-4">
         {data.map((item, i) => (
-          <BentoGridItem
+          <BlogCard
             id={item.id}
             likes={item.likes}
             viewCount={item.viewCount}
@@ -41,7 +41,7 @@ const BlogGrid = ({ data, count }: { data: Blog[]; count?: number }) => {
             } min-h-96 border-b`}
           />
         ))}
-      </BentoGrid>
+      </div>
       <div className="w-full flex justify-center items-center">
         <Pagination
           onChange={changePage}

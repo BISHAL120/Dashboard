@@ -195,70 +195,12 @@
 @keyframes blink-caret {
   from,
   to {
-    border-color: transparent;
+    border-color: white;
   }
   50% {
     border-color: orange;
   }
   100% {
-    display: none !important;
-  }
-}
-
-.textBlink {
-  animation: textBlinkEffect 3s;
-}
-
-@keyframes textBlinkEffect {
-  0% {
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  20% {
-    opacity: 0;
-  }
-  30% {
-    opacity: 1;
-  }
-  35% {
-    opacity: 0;
-  }
-  40% {
-    opacity: 1;
-  }
-  45% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  55% {
-    opacity: 0;
-  }
-  60% {
-    opacity: 1;
-  }
-  65% {
-    opacity: 0;
-  }
-  70% {
-    opacity: 1;
-  }
-  75% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 0;
-  }
-  85% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
+    border-color: white;
   }
 }

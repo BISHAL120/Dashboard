@@ -2,7 +2,7 @@ import React from "react";
 import EditProduct from "@/components/product/editProduct";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
-import EditProduct2 from "@/components/product/editProduct2";
+// import EditProduct2 from "@/components/product/editProduct2";
 
 const NewProduct = async ({ params }: { params: { id: string } }) => {
   let getProduct = null;

@@ -31,8 +31,6 @@ import { Trash } from "lucide-react";
 import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import "react-quill/dist/quill.snow.css";
-import Editor from "@/components/editor/editor";
 
 interface BlogFormProps {
   initialData: Blog | null;
@@ -41,7 +39,6 @@ interface BlogFormProps {
 
 const CreateBlog: React.FC<BlogFormProps> = ({ initialData, id }) => {
   const router = useRouter();
-  const quillRef = useRef(null); // Ref for ReactQuill
   const [tittle, setTittle] = useState<string>(initialData?.title || "");
   const [banner, setBanner] = useState<string>(initialData?.banner || "");
   const [thumbnail, setThumbnal] = useState(initialData?.thumb || {});
@@ -388,60 +385,6 @@ const CreateBlog: React.FC<BlogFormProps> = ({ initialData, id }) => {
     }
   };
 
-  const insertImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      toast.loading("Uploading...");
-      const files = e.target.files[0];
-
-      const formData = new FormData();
-
-      formData.append("file", files);
-
-      const response = await axios
-        .post("/api/upload/image", formData)
-        .then((res) => {
-          insertImageAtCursor(res.data.URL);
-          toast.dismiss();
-          toast.success("Image uploaded", {
-            position: "top-center",
-            duration: 3000,
-          });
-        })
-        .catch((e) => {
-          console.log(e);
-          toast.dismiss();
-          toast.error("Failed to upload image. Please try again", {
-            position: "top-center",
-            duration: 3000,
-          });
-        });
-      return response;
-    }
-  };
-
-  const insertImageAtCursor = (imgURL: string | null) => {
-    if (quillRef.current === null) return;
-    /* @ts-ignore */
-    const editor = quillRef.current.getEditor(); // Access Quill editor instance
-    const range = editor.getSelection(); // Get current cursor position
-    if (range) {
-      editor.insertEmbed(range.index, "image", imgURL); // Insert image at cursor
-      toast.dismiss();
-    }
-  };
-
-  const insertEmojiAtCursor = (emoji: any) => {
-    if (quillRef.current === null) return;
-    /* @ts-ignore */
-    const editor = quillRef.current.getEditor(); // Access Quill editor instance
-    const range = editor.getSelection(); // Get current cursor position
-
-    if (range) {
-      editor.insertText(range.index, `${emoji.native}`);
-    }
-    setEmojiPicker(false);
-  };
-
   return (
     <div className="">
       {/* sticky top-[80px] z-10 */}
@@ -507,27 +450,96 @@ const CreateBlog: React.FC<BlogFormProps> = ({ initialData, id }) => {
       </div>
       <div className="container mx-auto ">
         <div className="py-5">
-          <div className=" space-y-8">
-            <p className="text-2xl font-semibold">Blog Tittle</p>
-            <Input
-              value={tittle}
-              onValueChange={setTittle}
-              size="lg"
-              variant="faded"
-              height={100}
-              color="primary"
-              className="w-full mb-5"
-              placeholder="Enter Blog Tittle"
-            />
-            <div>
-              {initialData && initialData?.banner !== "" ? (
-                <div className=" w-full rounded-md overflow-hidden my-10 p-1">
-                  <p className="text-2xl font-semibold mb-4">Blog Thumbnail</p>
+          <div className="flex items-center gap-5">
+            <div className="w-1/2">
+              <p className="text-xl font-semibold mb-3">Blog Tittle</p>
+              <Input
+                value={tittle}
+                onValueChange={setTittle}
+                variant="faded"
+                color="primary"
+                placeholder="Enter Blog Tittle"
+              />
+            </div>
+            <div className="w-1/2">
+              <p className="text-xl font-semibold mb-3">Blog Slug</p>
+              <Input
+                // TODO: set the value in a state variable and check if it already exists in the database
+                value={tittle.replace(/\s+/g, "-").toLowerCase()}
+                // onValueChange={setTittle}
+                variant="faded"
+                color="primary"
+                placeholder="Blog Slug"
+                className="hover:cursor-wait"
+              />
+            </div>
+          </div>
+          <div>
+            {initialData && initialData?.banner !== "" ? (
+              <div className=" w-full rounded-md overflow-hidden my-10 p-1">
+                <p className="text-xl font-semibold mb-4">Blog Thumbnail</p>
 
+                <div className="relative w-[500px] h-[500px]">
+                  <Image
+                    as={NextImage}
+                    src={banner}
+                    alt="Preview"
+                    width={500}
+                    height={500}
+                    className="bg-gray-100 rounded-xl object-contain h-[400px] w-[400px] border"
+                  />
+                  <Button
+                    onPress={onOpen}
+                    className="z-10 absolute top-2 right-2 py-5 hover:bg-red-500 hover:border-white hover:text-white"
+                    type="button"
+                    variant="faded"
+                    size="sm"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                  <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+                    <ModalContent>
+                      {(onClose) => (
+                        <>
+                          <ModalHeader className="flex flex-col gap-1">
+                            Are you sure?
+                          </ModalHeader>
+                          <ModalBody>
+                            <p>
+                              This action cannot be undone. This will
+                              permanently delete your Blog and remove your data
+                              from our database.
+                            </p>
+                          </ModalBody>
+                          <ModalFooter>
+                            <Button
+                              color="danger"
+                              variant="light"
+                              onPress={onClose}
+                            >
+                              Close
+                            </Button>
+                            <Button
+                              onClick={ChangeThumbnail}
+                              color="primary"
+                              onPress={onClose}
+                            >
+                              Confirm
+                            </Button>
+                          </ModalFooter>
+                        </>
+                      )}
+                    </ModalContent>
+                  </Modal>
+                </div>
+              </div>
+            ) : (
+              <div>
+                {temBanner ? (
                   <div className="relative w-[500px] h-[500px]">
                     <Image
                       as={NextImage}
-                      src={banner}
+                      src={URL.createObjectURL(temBanner)}
                       alt="Preview"
                       width={500}
                       height={500}
@@ -535,7 +547,7 @@ const CreateBlog: React.FC<BlogFormProps> = ({ initialData, id }) => {
                     />
                     <Button
                       onPress={onOpen}
-                      className="z-10 absolute top-2 right-2 py-5 hover:bg-red-500 hover:border-white hover:text-white"
+                      className="z-10 absolute top-0 right-2 py-5 hover:bg-red-500 hover:border-white hover:text-white"
                       type="button"
                       variant="faded"
                       size="sm"
@@ -558,15 +570,15 @@ const CreateBlog: React.FC<BlogFormProps> = ({ initialData, id }) => {
                             </ModalBody>
                             <ModalFooter>
                               <Button
-                                color="danger"
+                                color="default"
                                 variant="light"
                                 onPress={onClose}
                               >
                                 Close
                               </Button>
                               <Button
-                                onClick={ChangeThumbnail}
-                                color="primary"
+                                onClick={() => setTemBanner(null)}
+                                color="danger"
                                 onPress={onClose}
                               >
                                 Confirm
@@ -577,108 +589,48 @@ const CreateBlog: React.FC<BlogFormProps> = ({ initialData, id }) => {
                       </ModalContent>
                     </Modal>
                   </div>
-                </div>
-              ) : (
-                <div>
-                  {temBanner ? (
-                    <div className="relative w-[500px] h-[500px]">
-                      <Image
-                        as={NextImage}
-                        src={URL.createObjectURL(temBanner)}
-                        alt="Preview"
-                        width={500}
-                        height={500}
-                        className="bg-gray-100 rounded-xl object-contain h-[400px] w-[400px] border"
-                      />
-                      <Button
-                        onPress={onOpen}
-                        className="z-10 absolute top-0 right-2 py-5 hover:bg-red-500 hover:border-white hover:text-white"
-                        type="button"
-                        variant="faded"
-                        size="sm"
+                ) : (
+                  <div
+                    onClick={() =>
+                      document?.getElementById("image-upload")?.click()
+                    }
+                    className="flex h-[400px] w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-muted-foreground/70 transition-colors hover:border-primary"
+                  >
+                    <input
+                      onChange={handleThumbnail}
+                      id="image-upload"
+                      type="file"
+                      className="sr-only h-[400px] w-full"
+                    />
+                    <div className="flex justify-center items-center gap-5 ">
+                      <svg
+                        className="h-6 w-6 text-muted-foreground"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-                        <ModalContent>
-                          {(onClose) => (
-                            <>
-                              <ModalHeader className="flex flex-col gap-1">
-                                Are you sure?
-                              </ModalHeader>
-                              <ModalBody>
-                                <p>
-                                  This action cannot be undone. This will
-                                  permanently delete your Blog and remove your
-                                  data from our database.
-                                </p>
-                              </ModalBody>
-                              <ModalFooter>
-                                <Button
-                                  color="default"
-                                  variant="light"
-                                  onPress={onClose}
-                                >
-                                  Close
-                                </Button>
-                                <Button
-                                  onClick={() => setTemBanner(null)}
-                                  color="danger"
-                                  onPress={onClose}
-                                >
-                                  Confirm
-                                </Button>
-                              </ModalFooter>
-                            </>
-                          )}
-                        </ModalContent>
-                      </Modal>
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" x2="12" y1="3" y2="15" />
+                      </svg>
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Upload Banner
+                      </span>
                     </div>
-                  ) : (
-                    <div
-                      onClick={() =>
-                        document?.getElementById("image-upload")?.click()
-                      }
-                      className="flex h-[400px] w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-muted-foreground/70 transition-colors hover:border-primary"
-                    >
-                      <input
-                        onChange={handleThumbnail}
-                        id="image-upload"
-                        type="file"
-                        className="sr-only h-[400px] w-full"
-                      />
-                      <div className="flex justify-center items-center gap-5 ">
-                        <svg
-                          className="h-6 w-6 text-muted-foreground"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="17 8 12 3 7 8" />
-                          <line x1="12" x2="12" y1="3" y2="15" />
-                        </svg>
-                        <span className="text-sm font-medium text-muted-foreground">
-                          Upload Banner
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
-        <div>
-          <Editor content={content} setContent={setContent} />
-        </div>
       </div>
+      <div>Editor</div>
     </div>
   );
 };

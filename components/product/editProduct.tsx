@@ -39,7 +39,7 @@ import { z } from "zod";
 import Description from "@/public/svg/Description";
 import GalleryIcon from "@/public/svg/GalleryIcon";
 import { HoverEffect } from "../aceternity/ui/card-hover-effect";
-import Editor from "../editor/editor";
+
 import ProductTypes from "./productTypes/components/productType";
 import { Brand, Category, Product, Tag as DbTags } from "@prisma/client";
 import toast from "react-hot-toast";
@@ -49,6 +49,7 @@ import { FormSchema } from "./productTypes/components/schema/schema";
 import axios from "axios";
 import { HexColorPicker } from "react-colorful";
 import { useRouter } from "next/navigation";
+import TextEditor from "../editor/textEditor";
 
 interface ProductFormProps {
   initialData: Product | null;
@@ -113,13 +114,7 @@ const EditProduct: React.FC<ProductFormProps> = ({
     size: "",
     color: [{ id: uuidv4(), color: "", stock: 0 }],
   });
-  const [sampleTags, setSampleTags] = useState<Tag[]>([
-    { id: "60a25811-34fa-482e-b4e8-374aaa46868b", text: "Pants" },
-    { id: "9fc09058-9d9b-4481-b089-6762e7f3a5fb", text: "T-Shirt" },
-    { id: "f1d338ec-2b51-4d3a-99c5-7bbd3bd559d7", text: "Socks" },
-    { id: "6e091bb7-1a05-4813-a142-85f00f47f6c0", text: "Hoodie" },
-    { id: "6f5ed2a9-1eec-4fed-ad38-b2e99cff8092", text: "Jacket" },
-  ]);
+
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -574,11 +569,10 @@ const EditProduct: React.FC<ProductFormProps> = ({
                                 onChange={field.onChange}
                                 value={field.value}
                                 labelPlacement="inside"
-                                label={`${
-                                  brands.length > 0
-                                    ? "Select Brand"
-                                    : "No Brand Available, Create new!"
-                                }`}
+                                label={`${brands.length > 0
+                                  ? "Select Brand"
+                                  : "No Brand Available, Create new!"
+                                  }`}
                                 color="primary"
                                 className=""
                                 size="lg"
@@ -753,11 +747,7 @@ const EditProduct: React.FC<ProductFormProps> = ({
                   </div>
                 }
               >
-                <Editor
-                  setContent={setContent}
-                  content={content}
-                  className="min-h-[300px]"
-                />
+                <TextEditor />
               </Tab>
               <Tab
                 key="Varients"

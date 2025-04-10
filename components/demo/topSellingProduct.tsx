@@ -69,7 +69,7 @@ export default function TopSellingProduct() {
 
   return (
     <Table
-      className="lg:w-[620px] h-[450px] xl:h-[410px] flex-grow p-1 overflow-auto"
+      className=" h-[460px] flex-grow p-1 overflow-auto"
       aria-label="Example table with custom cells"
     >
       <TableHeader columns={columns}>

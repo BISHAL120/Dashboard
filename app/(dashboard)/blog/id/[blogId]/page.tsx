@@ -1,7 +1,5 @@
 "use server";
 
-import React from "react";
-import Editor from "./components/editor";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import CreateBlog from "./components/createBlog";
@@ -21,7 +19,6 @@ const BlogPage = async ({ params }: { params: { blogId: string } }) => {
 
   return (
     <div>
-      {/* <Editor id={params.blogId} initialData={getBlog} /> */}
       <CreateBlog id={params.blogId} initialData={getBlog} />
     </div>
   );

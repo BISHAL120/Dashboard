@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@nextui-org/react";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -11,26 +14,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RadioGroup, Radio } from "@nextui-org/radio";
-import { Calendar } from "@nextui-org/react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon, ImagePlus, X, Smile } from "lucide-react";
-import { useDropzone } from "react-dropzone";
-import dynamic from "next/dynamic";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import { HexColorPicker } from "react-colorful";
+import { Radio, RadioGroup } from "@nextui-org/radio";
+import { Calendar, Image, Input } from "@nextui-org/react";
+import { format } from "date-fns";
+import { CalendarIcon, ImagePlus, Smile, X } from "lucide-react";
+import dynamic from "next/dynamic";
 import NextImage from "next/image";
-import { Image } from "@nextui-org/react";
-
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
-import "react-quill/dist/quill.snow.css";
-import { Quill } from "react-quill";
+import { useCallback, useState } from "react";
+import { HexColorPicker } from "react-colorful";
+import { useDropzone } from "react-dropzone";
 
 interface Variant {
   size: string;
@@ -95,12 +89,6 @@ export default function EditProduct2() {
   };
 
   const toolbarOptions = [["image"], ["imageResize"]];
-
-  const quill = new Quill("#editor", {
-    modules: {
-      toolbar: toolbarOptions,
-    },
-  });
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setProduct((prev) => ({
@@ -243,11 +231,7 @@ export default function EditProduct2() {
               Description
             </Label>
             <div className="mt-1 relative">
-              <ReactQuill
-                theme="snow"
-                value={product.description}
-                onChange={handleDescriptionChange}
-              />
+              Text Editor
               <div className="absolute top-2 right-2 p-2 flex gap-3">
                 <Button type="button">
                   <ImagePlus
@@ -268,7 +252,6 @@ export default function EditProduct2() {
                   </div>
                 )}
               </div>
-
               <Input
                 onChange={insertImage}
                 multiple

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/chart";
 import * as htmlToImage from "html-to-image";
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from "html-to-image";
-import AnimatedButton from "../animatedButton/animatedButton";
+
 import { Button } from "@nextui-org/react";
 const chartData = [
   { time: "1AM", desktop: 186 },
@@ -80,7 +80,7 @@ export function AreaChartOne({ className }: { className?: string }) {
     <div className={`${className} w-full xl:max-w-[380px]`}>
       <Card
         id="ChartPNG2"
-        className="relative w-full xl:w-[370px] xl:h-[450px] xl:max-h-[450px] xl:max-w-[380px]"
+        className="relative h-[450px] xl:w-[370px] xl:h-[450px] xl:max-h-[450px] xl:max-w-[380px]"
       >
         <button className="absolute top-5 right-5" onClick={downloadPng}>
           <DownloadCloud color="blue" />
@@ -127,16 +127,6 @@ export function AreaChartOne({ className }: { className?: string }) {
           </div>
           <div className="leading-none text-muted-foreground">
             Showing total visitors for the last 6 times
-          </div>
-          <div className="w-full max-w-[60%] mx-auto py-4">
-            {/* <AnimatedButton /> */}
-            <Button
-              variant="shadow"
-              color="primary"
-              className="mx-auto  w-full"
-            >
-              Full Report
-            </Button>
           </div>
         </CardFooter>
       </Card>
